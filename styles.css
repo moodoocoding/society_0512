@@ -418,6 +418,8 @@ button {
   cursor: pointer;
   box-shadow: 0 6px 0 var(--ink);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .big-action:disabled {
@@ -472,6 +474,27 @@ button {
   font-weight: 800;
 }
 
+.path-context {
+  max-width: 980px;
+  margin-top: 18px;
+  padding: 16px 18px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  background: #f8faf7;
+}
+
+.path-context strong {
+  display: block;
+  font-size: 1rem;
+  color: #384052;
+}
+
+.story-panel .path-context p {
+  margin-top: 8px;
+  font-size: 1.08rem;
+  line-height: 1.55;
+}
+
 .question-strip {
   margin-top: 24px;
   padding: 18px 20px;
@@ -519,7 +542,7 @@ button {
 }
 
 .factor-chip {
-  min-height: 58px;
+  min-height: 72px;
   padding: 10px 12px;
   border: 3px solid var(--ink);
   border-radius: 8px;
@@ -528,6 +551,20 @@ button {
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 4px 0 var(--ink);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.factor-chip strong,
+.factor-chip small {
+  display: block;
+}
+
+.factor-chip small {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  line-height: 1.25;
+  color: #475467;
 }
 
 .factor-chip.selected {
@@ -557,7 +594,7 @@ button {
 }
 
 .choice-card {
-  min-height: 300px;
+  min-height: 350px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -570,6 +607,8 @@ button {
   text-align: left;
   cursor: pointer;
   box-shadow: 0 8px 0 var(--ink);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .choice-card.metro {
@@ -589,6 +628,21 @@ button {
   font-weight: 700;
 }
 
+.choice-card .choice-benefit,
+.choice-card .choice-cost {
+  align-self: stretch;
+  padding: 8px 10px;
+  border: 2px solid rgba(34, 39, 51, 0.4);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.58);
+  font-size: 0.98rem;
+  line-height: 1.35;
+}
+
+.choice-card .choice-cost {
+  background: rgba(255, 242, 191, 0.74);
+}
+
 .choice-icon {
   width: 86px;
   height: 86px;
@@ -598,22 +652,17 @@ button {
 }
 
 .choice-icon.city {
-  background:
-    linear-gradient(to top, var(--blue) 0 58%, transparent 58%),
-    linear-gradient(to top, var(--red) 0 76%, transparent 76%),
-    linear-gradient(to top, var(--yellow) 0 44%, transparent 44%),
-    white;
-  background-size: 24px 100%, 24px 100%, 24px 100%, auto;
-  background-position: 12px bottom, 32px bottom, 52px bottom, center;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='10' y='40' width='25' height='60' fill='%233a72d8'/%3E%3Crect x='15' y='45' width='5' height='5' fill='%23fff'/%3E%3Crect x='25' y='45' width='5' height='5' fill='%23fff'/%3E%3Crect x='15' y='55' width='5' height='5' fill='%23fff'/%3E%3Crect x='25' y='55' width='5' height='5' fill='%23fff'/%3E%3Crect x='15' y='65' width='5' height='5' fill='%23fff'/%3E%3Crect x='25' y='65' width='5' height='5' fill='%23fff'/%3E%3Crect x='37' y='15' width='30' height='85' fill='%23e84f3d'/%3E%3Cpolygon points='37,15 52,0 67,15' fill='%23e84f3d'/%3E%3Crect x='42' y='25' width='20' height='5' fill='%23fff'/%3E%3Crect x='42' y='40' width='20' height='5' fill='%23fff'/%3E%3Crect x='42' y='55' width='20' height='5' fill='%23fff'/%3E%3Crect x='42' y='70' width='20' height='5' fill='%23fff'/%3E%3Crect x='69' y='50' width='20' height='50' fill='%23f6c344'/%3E%3Crect x='74' y='55' width='10' height='10' fill='%23fff'/%3E%3Crect x='74' y='70' width='10' height='10' fill='%23fff'/%3E%3C/svg%3E");
+  background-size: 80%;
   background-repeat: no-repeat;
+  background-position: center bottom;
 }
 
 .choice-icon.town {
-  background:
-    linear-gradient(135deg, transparent 48%, var(--red) 49% 60%, transparent 61%),
-    linear-gradient(225deg, transparent 48%, var(--red) 49% 60%, transparent 61%),
-    linear-gradient(to top, var(--green) 0 40%, transparent 40%),
-    white;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='17' y='60' width='6' height='20' fill='%238B4513'/%3E%3Ccircle cx='20' cy='50' r='15' fill='%23258f6b'/%3E%3Crect x='35' y='50' width='40' height='30' fill='%23f6c344'/%3E%3Cpolygon points='30,50 55,25 80,50' fill='%23e84f3d'/%3E%3Crect x='42' y='60' width='8' height='8' fill='%23fff'/%3E%3Crect x='58' y='60' width='10' height='20' fill='%23fff'/%3E%3Crect x='0' y='80' width='100' height='20' fill='%23d9f1d0'/%3E%3C/svg%3E");
+  background-size: 80%;
+  background-repeat: no-repeat;
+  background-position: center bottom;
 }
 
 .result-layout,
@@ -828,6 +877,21 @@ button {
   line-height: 1.6;
 }
 
+@media (max-width: 1024px) {
+  .story-panel {
+    padding: clamp(16px, 3vw, 32px);
+  }
+  .story-panel h2 {
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+  }
+  .story-panel p {
+    font-size: 1.15rem;
+  }
+  .choice-card {
+    min-height: 280px;
+  }
+}
+
 @media (max-width: 860px) {
   .game-app {
     padding: 0;
@@ -894,7 +958,7 @@ button {
   }
 
   .choice-card {
-    min-height: 230px;
+    min-height: 300px;
   }
 
   .factor-grid {
