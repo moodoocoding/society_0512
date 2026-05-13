@@ -749,16 +749,123 @@ function getCurrentScenario() {
   return rounds[state.roundIndex][state.currentScenarioKey];
 }
 
-function getDiceEvent(roll) {
-  const events = {
-    1: { label: "예상 밖 지출", delta: -1, text: "갑작스러운 병원비나 수리비가 생겼습니다." },
-    2: { label: "평범한 한 달", delta: 0, text: "큰 변화 없이 계획대로 생활했습니다." },
+const tagEvents = {
+  "결정": {
+    1: { label: "초기 비용", delta: -1, text: "짐을 옮기거나 자취 물품을 사느라 돈을 썼습니다." },
+    2: { label: "무난한 출발", delta: 0, text: "큰 문제 없이 첫걸음을 뗐습니다." },
+    3: { label: "알뜰 장보기", delta: 1, text: "생필품을 저렴하게 사서 돈을 아꼈습니다." },
+    4: { label: "선배의 조언", delta: 1, text: "경험자의 조언으로 초기 생활비를 줄였습니다." },
+    5: { label: "입주 혜택", delta: 2, text: "첫 달 관리비 면제 혜택을 받았습니다." },
+    6: { label: "초기 자금 지원", delta: 3, text: "가족으로부터 든든한 정착금을 지원받았습니다!" },
+  },
+  "주거": {
+    1: { label: "보일러 고장", delta: -1, text: "갑자기 보일러가 고장 나 수리비를 지출했습니다." },
+    2: { label: "평범한 한 달", delta: 0, text: "방값 외에 큰 지출 없이 조용히 보냈습니다." },
+    3: { label: "공과금 절약", delta: 1, text: "전기와 가스를 아껴 생활비를 줄였습니다." },
+    4: { label: "중고 가구 득템", delta: 1, text: "필요했던 가구를 중고로 아주 싸게 구했습니다." },
+    5: { label: "월세 환급", delta: 2, text: "월세 일부를 정부 지원금으로 환급받았습니다." },
+    6: { label: "주거 복지 당첨", delta: 3, text: "파격적인 지자체 주거 복지 대상자로 선정되었습니다!" },
+  },
+  "교통": {
+    1: { label: "비싼 택시비", delta: -1, text: "버스를 놓쳐 택시를 타느라 지출이 컸습니다." },
+    2: { label: "평범한 출퇴근", delta: 0, text: "평소와 다름없는 출퇴근길을 보냈습니다." },
+    3: { label: "교통비 할인", delta: 1, text: "교통카드 환급 혜택을 알뜰하게 챙겼습니다." },
+    4: { label: "카풀 성공", delta: 1, text: "이웃과 카풀을 하며 차비를 아꼈습니다." },
+    5: { label: "교통 패스", delta: 2, text: "광역 교통 패스 지원을 받아 돈을 굳혔습니다." },
+    6: { label: "출장 특별 수당", delta: 3, text: "먼 출장길에서 뜻밖의 큰 특별 수당을 받았습니다." },
+  },
+  "정책": {
+    1: { label: "행정 수수료", delta: -1, text: "각종 서류를 떼고 신청하느라 돈을 썼습니다." },
+    2: { label: "변화 없음", delta: 0, text: "정책의 혜택이나 손해 없이 평범하게 지냈습니다." },
+    3: { label: "소액 지원금", delta: 1, text: "동네에서 지역 화폐 혜택을 조금 받았습니다." },
+    4: { label: "공공시설 이용", delta: 1, text: "무료 공공시설을 이용해 여가 비용을 아꼈습니다." },
+    5: { label: "청년 수당", delta: 2, text: "지자체에서 지급하는 청년 수당을 받았습니다." },
+    6: { label: "대규모 지원", delta: 3, text: "정부의 대규모 특별 지원금 대상자로 전격 발탁되었습니다!" },
+  },
+  "산업": {
+    1: { label: "업무 실수", delta: -1, text: "일에서 작은 실수를 수습하느라 사비를 썼습니다." },
+    2: { label: "무난한 직장생활", delta: 0, text: "별다른 문제 없이 회사 생활을 이어갑니다." },
+    3: { label: "소소한 부수입", delta: 1, text: "남는 시간에 아르바이트로 용돈을 벌었습니다." },
+    4: { label: "칭찬과 포상", delta: 1, text: "업무 성과가 좋아 작은 포상금을 받았습니다." },
+    5: { label: "우수 사원", delta: 2, text: "이달의 우수 사원으로 뽑혀 상여금을 받았습니다." },
+    6: { label: "특별 성과급", delta: 3, text: "회사가 대박이 나서 엄청난 성과급이 터졌습니다!" },
+  },
+  "문화": {
+    1: { label: "충동 구매", delta: -1, text: "분위기에 휩쓸려 비싼 티켓을 충동 구매했습니다." },
+    2: { label: "소박한 여가", delta: 0, text: "집에서 영화를 보며 돈을 들이지 않고 쉬었습니다." },
+    3: { label: "초대권 당첨", delta: 1, text: "무료 전시회 초대권에 당첨되어 문화생활을 즐겼습니다." },
+    4: { label: "동네 축제", delta: 1, text: "돈 안 드는 동네 축제에서 쏠쏠한 재미를 봤습니다." },
+    5: { label: "경품 당첨", delta: 2, text: "축제 경품 추첨에서 꽤 값비싼 선물을 받았습니다." },
+    6: { label: "VIP의 행운", delta: 3, text: "우연히 VIP 대접을 받으며 최고급 여가를 누렸습니다!" },
+  },
+  "의료": {
+    1: { label: "비급여 진료", delta: -1, text: "감기몸살로 병원에 가서 약값과 진료비를 썼습니다." },
+    2: { label: "건강한 한 달", delta: 0, text: "다행히 아픈 곳 없이 무사히 지나갔습니다." },
+    3: { label: "체력 관리", delta: 1, text: "저렴하게 비타민을 사서 체력을 아꼈습니다." },
+    4: { label: "무료 검진", delta: 1, text: "보건소에서 무료로 기초 건강 검진을 받았습니다." },
+    5: { label: "의료비 환급", delta: 2, text: "예전에 냈던 건강보험료 일부를 환급받았습니다." },
+    6: { label: "건강검진 지원", delta: 3, text: "비싼 종합 건강 검진을 전액 무료로 받게 되었습니다!" },
+  },
+  "가족": {
+    1: { label: "경조사 지출", delta: -1, text: "갑작스러운 이웃/친척의 경조사에 축의금을 냈습니다." },
+    2: { label: "평온한 일상", delta: 0, text: "주변 사람들과 적당한 거리를 유지하며 지냈습니다." },
+    3: { label: "반찬 나눔", delta: 1, text: "이웃이나 가족이 맛있는 반찬을 챙겨주어 식비를 아꼈습니다." },
+    4: { label: "품앗이 성공", delta: 1, text: "이웃과 서로 도우며 집안 수리비 지출을 막았습니다." },
+    5: { label: "친척의 용돈", delta: 2, text: "오랜만에 만난 친척 어른께서 든든한 용돈을 주셨습니다." },
+    6: { label: "유산/큰 선물", delta: 3, text: "가족으로부터 가치가 엄청난 큰 선물을 덜컥 받았습니다!" },
+  },
+  "기회": {
+    1: { label: "작은 불운", delta: -1, text: "기회를 쫓다가 예상 밖의 비용이 들어갔습니다." },
+    2: { label: "숨 고르기", delta: 0, text: "큰 변화 없이 조용히 넘어갔습니다." },
+    3: { label: "상황 대처", delta: 1, text: "기지를 발휘해 불필요한 돈이 나가는 것을 막았습니다." },
+    4: { label: "소소한 행운", delta: 1, text: "우연히 좋은 정보를 얻어 도움이 되었습니다." },
+    5: { label: "예상 밖 이득", delta: 2, text: "상황이 좋게 흘러가 꽤 큰 금전적 이득을 얻었습니다." },
+    6: { label: "엄청난 대박", delta: 3, text: "모든 운이 따라주어 최고의 보너스를 챙겼습니다!" },
+  },
+  "위기": {
+    1: { label: "설상가상", delta: -1, text: "위기 상황에 급전까지 필요해져 최악의 지출이 생겼습니다." },
+    2: { label: "간신히 버팀", delta: 0, text: "더 이상의 피해 없이 이빨을 꽉 물고 버텼습니다." },
+    3: { label: "위기 탈출", delta: 1, text: "빠르게 대처해 더 큰 금전적 손실을 막아냈습니다." },
+    4: { label: "따뜻한 도움", delta: 1, text: "누군가의 도움으로 위기를 조금 수월하게 넘겼습니다." },
+    5: { label: "전화위복", delta: 2, text: "위기를 기회로 삼아 오히려 이득을 보았습니다." },
+    6: { label: "기적의 동아줄", delta: 3, text: "말도 안 되는 엄청난 행운으로 모든 위기를 단숨에 벗어났습니다!" },
+  },
+  "최종": {
+    1: { label: "예상 밖 지출", delta: -1, text: "마지막 정착 과정에서 예기치 못한 비용이 컸습니다." },
+    2: { label: "평범한 정착", delta: 0, text: "조용하고 무난하게 마지막 결정을 내렸습니다." },
+    3: { label: "알뜰한 마무리", delta: 1, text: "꼼꼼하게 계획하여 불필요한 지출을 아꼈습니다." },
+    4: { label: "순조로운 길", delta: 1, text: "주변의 도움으로 마지막 짐을 가볍게 덜었습니다." },
+    5: { label: "든든한 지원", delta: 2, text: "결정을 응원하는 특별한 혜택을 챙겼습니다." },
+    6: { label: "화려한 피날레", delta: 3, text: "가장 완벽한 행운이 따르며 엄청난 축하 보너스를 받았습니다!" },
+  },
+  "default": {
+    1: { label: "예상 밖 지출", delta: -1, text: "갑작스러운 지출이 생겼습니다." },
+    2: { label: "평범한 한 달", delta: 0, text: "큰 변화 없이 생활했습니다." },
     3: { label: "절약 성공", delta: 1, text: "알뜰하게 생활해 코인을 아꼈습니다." },
-    4: { label: "작은 기회", delta: 1, text: "좋은 정보나 도움을 얻어 생활이 조금 나아졌습니다." },
-    5: { label: "지원 혜택", delta: 2, text: "교통비 지원이나 생활 혜택을 받았습니다." },
-    6: { label: "큰 행운", delta: 3, text: "좋은 기회가 찾아와 큰 보너스를 얻었습니다." },
-  };
+    4: { label: "작은 기회", delta: 1, text: "생활이 조금 나아졌습니다." },
+    5: { label: "지원 혜택", delta: 2, text: "생활 혜택을 받았습니다." },
+    6: { label: "큰 행운", delta: 3, text: "큰 보너스를 얻었습니다." },
+  }
+};
 
+function renderEventGuideTable(tag, mode) {
+  const events = tagEvents[tag] || tagEvents["default"];
+  return `
+    <div class="dice-guide-table">
+      <strong>${mode === "box" ? "🎁 박스 등장" : "🎲 주사위 눈별"} 이벤트 안내</strong>
+      <ul>
+        <li>${mode === "box" ? "" : "[1] "}${events[1].label} (${clampCoinLabel(events[1].delta)}코인)</li>
+        <li>${mode === "box" ? "" : "[2] "}${events[2].label} (${clampCoinLabel(events[2].delta)}코인)</li>
+        <li>${mode === "box" ? "" : "[3, 4] "}${events[3].label} / ${events[4].label} (${clampCoinLabel(events[3].delta)}코인)</li>
+        <li>${mode === "box" ? "" : "[5] "}${events[5].label} (${clampCoinLabel(events[5].delta)}코인)</li>
+        <li>${mode === "box" ? "" : "[6] "}${events[6].label} (${clampCoinLabel(events[6].delta)}코인)</li>
+      </ul>
+    </div>
+  `;
+}
+
+function getDiceEvent(roll, tag) {
+  const events = tagEvents[tag] || tagEvents["default"];
   return events[roll];
 }
 
@@ -1216,16 +1323,7 @@ function renderDice() {
         <p class="round-kicker">ROUND ${state.roundIndex + 1}</p>
         <h2>${getChoiceLabel(state.pendingChoice, option)}</h2>
         <p>${employmentText}</p>
-        <div class="dice-guide-table">
-          <strong>🎲 주사위 눈별 보상 안내</strong>
-          <ul>
-            <li>[1] 예상 밖 지출 (-1코인)</li>
-            <li>[2] 평범한 한 달 (0코인)</li>
-            <li>[3, 4] 알뜰/작은 기회 (+1코인)</li>
-            <li>[5] 지원 혜택 (+2코인)</li>
-            <li>[6] 큰 행운 (+3코인)</li>
-          </ul>
-        </div>
+        ${renderEventGuideTable(round.tag, "dice")}
       </article>
       <aside class="dice-panel">
         <div class="dice-face ${state.isRolling ? "rolling" : ""}" aria-label="주사위">${state.rollingDiceValue}</div>
@@ -1257,16 +1355,7 @@ function renderBox() {
         <p class="round-kicker">ROUND ${state.roundIndex + 1}</p>
         <h2>${getChoiceLabel(state.pendingChoice, option)}</h2>
         <p>${guideText}</p>
-        <div class="dice-guide-table">
-          <strong>🎁 박스 등장 이벤트 안내</strong>
-          <ul>
-            <li>예상 밖 지출 (-1코인)</li>
-            <li>평범한 한 달 (0코인)</li>
-            <li>알뜰/작은 기회 (+1코인)</li>
-            <li>지원 혜택 (+2코인)</li>
-            <li>큰 행운 (+3코인)</li>
-          </ul>
-        </div>
+        ${renderEventGuideTable(round.tag, "box")}
       </article>
       <aside class="box-panel" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; width: 100%;">
         <p style="font-weight: bold; font-size: 1.2rem;">아래 세 개의 박스 중 하나를 고르세요!</p>
@@ -1397,7 +1486,7 @@ function resolveDiceRoll(roll) {
   const round = getCurrentScenario();
   const type = state.pendingChoice;
   const option = round[type];
-  const event = getDiceEvent(roll);
+  const event = getDiceEvent(roll, round.tag);
   const costs = sumCosts(option.costs);
   const bonus = getPuzzleScore(round);
   let employed = true;
