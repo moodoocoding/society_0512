@@ -970,3 +970,11 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+
+.dice-guide-table { margin-top: 1.5rem; padding: 1rem; background: var(--surface-100); border: 1px solid var(--border-color); border-radius: 12px; font-size: 0.95rem; line-height: 1.6; }
+.dice-guide-table strong { display: block; margin-bottom: 0.5rem; color: var(--primary-800); }
+.dice-guide-table ul { list-style: none; padding: 0; margin: 0; }
+.dice-guide-table li { margin-bottom: 0.25rem; }
+.box-container.locked { pointer-events: none; opacity: 0.5; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }

@@ -728,11 +728,12 @@ function clampCoinLabel(value) {
 }
 
 function getPuzzleScore(round) {
-  return round.coreFactors.every((factor) => state.selectedFactors.includes(factor)) ? 1 : 0;
+  if (state.selectedFactors.length === 0) return 0;
+  return round.coreFactors.includes(state.selectedFactors[0]) ? 1 : 0;
 }
 
 function getPuzzleQuestion(round) {
-  return `이번 ${round.tag} 상황에서 지역 선택을 결정하는 핵심 핵심 조건 1개를 고르세요.`;
+  return `이번 ${round.tag} 상황에서 지역 선택을 결정하는 핵심 조건 1개를 고르세요.`;
 }
 
 function chooseScenarioKey() {
@@ -1015,6 +1016,7 @@ function render() {
   if (state.phase === "intro") renderIntro();
   if (state.phase === "choice") renderChoice();
   if (state.phase === "dice") renderDice();
+  if (state.phase === "box") renderBox();
   if (state.phase === "reveal") renderReveal();
   if (state.phase === "ending") renderEnding();
 }
@@ -1214,13 +1216,66 @@ function renderDice() {
         <p class="round-kicker">ROUND ${state.roundIndex + 1}</p>
         <h2>${getChoiceLabel(state.pendingChoice, option)}</h2>
         <p>${employmentText}</p>
-        <p>주사위 눈에 따라 생활비 이벤트가 추가됩니다. 운도 현실의 일부처럼 작용합니다.</p>
+        <div class="dice-guide-table">
+          <strong>🎲 주사위 눈별 보상 안내</strong>
+          <ul>
+            <li>[1] 예상 밖 지출 (-1코인)</li>
+            <li>[2] 평범한 한 달 (0코인)</li>
+            <li>[3, 4] 알뜰/작은 기회 (+1코인)</li>
+            <li>[5] 지원 혜택 (+2코인)</li>
+            <li>[6] 큰 행운 (+3코인)</li>
+          </ul>
+        </div>
       </article>
       <aside class="dice-panel">
         <div class="dice-face ${state.isRolling ? "rolling" : ""}" aria-label="주사위">${state.rollingDiceValue}</div>
         <button class="big-action" type="button" data-action="roll" ${state.isRolling ? "disabled" : ""}>
           ${state.isRolling ? "굴리는 중..." : "주사위 굴리기"}
         </button>
+      </aside>
+    </section>
+  `);
+}
+
+function renderBox() {
+  const round = getCurrentScenario();
+  const option = round[state.pendingChoice];
+  
+  let guideText = "";
+  if (state.pendingChoice === "local" && option.employmentRate < 1) {
+    const successMin = getLocalSuccessMin(option.employmentRate);
+    guideText = `지방 취업은 확률이 낮습니다. 박스에서 나오는 숫자가 ${successMin} 이상이어야 취업에 성공합니다!`;
+  } else if (state.pendingChoice === "metro") {
+    guideText = `수도권은 일자리가 비교적 안정적입니다. 박스를 열어 생활비 이벤트 보너스를 확인하세요.`;
+  } else {
+    guideText = `이번 라운드는 일자리가 안정적입니다. 박스를 열어 생활비 이벤트 보너스를 확인하세요.`;
+  }
+
+  renderShell(`
+    <section class="dice-layout">
+      <article class="dice-story">
+        <p class="round-kicker">ROUND ${state.roundIndex + 1}</p>
+        <h2>${getChoiceLabel(state.pendingChoice, option)}</h2>
+        <p>${guideText}</p>
+        <div class="dice-guide-table">
+          <strong>🎁 박스 등장 이벤트 안내</strong>
+          <ul>
+            <li>예상 밖 지출 (-1코인)</li>
+            <li>평범한 한 달 (0코인)</li>
+            <li>알뜰/작은 기회 (+1코인)</li>
+            <li>지원 혜택 (+2코인)</li>
+            <li>큰 행운 (+3코인)</li>
+          </ul>
+        </div>
+      </article>
+      <aside class="box-panel" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; width: 100%;">
+        <p style="font-weight: bold; font-size: 1.2rem;">아래 세 개의 박스 중 하나를 고르세요!</p>
+        <div class="box-container ${state.isRolling ? "locked" : ""}" style="display: flex; gap: 2rem; font-size: 4rem; justify-content: center;">
+          <button type="button" data-action="open-box" style="background: none; border: none; font-size: inherit; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🎁</button>
+          <button type="button" data-action="open-box" style="background: none; border: none; font-size: inherit; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🎁</button>
+          <button type="button" data-action="open-box" style="background: none; border: none; font-size: inherit; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🎁</button>
+        </div>
+        ${state.isRolling ? "<p class='rolling-text' style='color: #FF5722; font-weight: bold; margin-top: 1rem; font-size: 1.5rem; animation: pulse 1s infinite;'>결과 확인 중...</p>" : ""}
       </aside>
     </section>
   `);
@@ -1312,10 +1367,11 @@ function renderEnding() {
 function chooseRegion(type) {
   if (state.selectedFactors.length !== REQUIRED_FACTORS) return;
 
+  state.eventMode = Math.random() < 0.5 ? "box" : "dice";
   state.pendingChoice = type;
   state.rollingDiceValue = "?";
   state.isRolling = false;
-  state.phase = "dice";
+  state.phase = state.eventMode;
   render();
 }
 
@@ -1476,6 +1532,10 @@ app.addEventListener("click", (event) => {
 
   const action = event.target.closest("[data-action]");
   if (action) {
+    if (action.dataset.action === "open-box") {
+      startDiceRoll();
+      return;
+    }
     handleAction(action.dataset.action);
   }
 });
