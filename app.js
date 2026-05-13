@@ -1353,7 +1353,6 @@ function renderReveal() {
         <h2>${result.region} 선택 결과</h2>
         <div class="result-number">${clampCoinLabel(result.delta)}코인</div>
         <p>${result.message}</p>
-        ${result.bonus > 0 ? `<p class="bonus-note">상황의 핵심 조건을 정확히 짚어 분석 보너스 1코인을 받았습니다.</p>` : ""}
         <dl class="calc-list">
           <div><dt>수입</dt><dd>${result.income}코인</dd></div>
           <div><dt>지출</dt><dd>${result.costText}</dd></div>
